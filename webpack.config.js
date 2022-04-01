@@ -1,14 +1,24 @@
+const glob = require('glob');
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const GlobEntries = require('webpack-glob-entries');
+
+function getEntries(pattern) {
+  const entries = {};
+  glob.sync(pattern).forEach((file) => {
+    entries[file] = path.join(__dirname, file);
+  });
+  return entries;
+}
 
 module.exports = {
   mode: 'production',
-  entry: GlobEntries('./src/*test*.ts'), // Generates multiple entry for each test
+  entry: getEntries('./src/**/*.test.ts'),
   output: {
     path: path.join(__dirname, 'dist'),
     libraryTarget: 'commonjs',
-    filename: '[name].js',
+    filename: ({ chunk: { name } }) => {
+      return name.replace('./src/', '').replace(/\.[^/.]+$/, '.js');
+    },
   },
   resolve: {
     extensions: ['.ts', '.js'],
@@ -16,7 +26,7 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.(js|ts)$/,
         use: 'babel-loader',
         exclude: /node_modules/,
       },
@@ -24,16 +34,11 @@ module.exports = {
   },
   target: 'web',
   externals: /^(k6|https?\:\/\/)(\/.*)?/,
-  // Generate map files for compiled scripts
-  devtool: "source-map",
   stats: {
     colors: true,
   },
-  plugins: [
-    new CleanWebpackPlugin(),
-  ],
+  plugins: [new CleanWebpackPlugin()],
   optimization: {
-    // Don't minimize, as it's not used in the browser
     minimize: false,
   },
 };
