@@ -1,6 +1,5 @@
 const path = require('path');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const CopyPlugin = require('copy-webpack-plugin');
 const GlobEntries = require('webpack-glob-entries');
 
 module.exports = {
@@ -32,14 +31,6 @@ module.exports = {
   },
   plugins: [
     new CleanWebpackPlugin(),
-    // Copy assets to the destination folder
-    // see `src/post-file-test.ts` for an test example using an asset
-    new CopyPlugin({
-      patterns: [{ 
-        from: path.resolve(__dirname, 'assets'), 
-        noErrorOnMissing: true 
-      }],
-    }),
   ],
   optimization: {
     // Don't minimize, as it's not used in the browser
